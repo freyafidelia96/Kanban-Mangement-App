@@ -1,7 +1,14 @@
 <template>
-  <div></div>
+  <div>
+    <main-layout></main-layout>
+  </div>
 </template>
 
-<script></script>
+<script setup>
+import { resolveComponent } from "vue";
+import MainLayout from "./layout/MainLayout.vue";
 
-<style></style>
+const mainLayout = resolveComponent("MainLayout");
+</script>
+
+<style scoped></style>
