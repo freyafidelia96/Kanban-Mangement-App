@@ -14,7 +14,7 @@
             class="small-screen"
           />
         </div>
-        <div class="board-name">Platform Launch</div>
+        <div :class="{ boardName: true, padding: view }">Platform Launch</div>
       </div>
       <div class="actions">
         <div class="btn-add-new-task">
@@ -28,26 +28,40 @@
             </template>
           </base-button>
         </div>
-        <img
-          src="../assets/images/icon-vertical-ellipsis.svg"
-          alt="icon-vertical-ellipsis"
-        />
+        <div class="board-menu">
+          <button class="dots">
+            <img
+              src="../assets/images/icon-vertical-ellipsis.svg"
+              alt="icon-vertical-ellipsis"
+            />
+          </button>
+          <div class="editBoard">
+            <button class="edit">Edit Board</button>
+            <button class="delete">Delete Board</button>
+          </div>
+        </div>
       </div>
     </header>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { inject } from "vue";
+const view = inject("view");
+</script>
 
 <style scoped>
-.board-name {
+.boardName {
   font-size: 25px;
   color: #000112;
-  font-weight: 900;
-  padding-inline-start: 36px;
+  font-weight: 700;
+  padding-inline-start: 100px;
   padding-block: 31px;
-  line-height: auto;
   letter-spacing: 0px;
+}
+
+.padding {
+  padding-inline-start: 32px;
 }
 
 .logo {
@@ -66,6 +80,7 @@ header {
   left: 0;
   position: fixed;
   width: 100vw;
+  z-index: 1;
 }
 
 .add {
@@ -92,10 +107,53 @@ header {
   display: none;
 }
 
+button {
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+}
+
+.board-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.board-menu .editBoard {
+  display: none;
+  position: absolute;
+  width: 192px;
+  height: auto;
+  right: 5px;
+  top: 60px;
+  background-color: white;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.editBoard .edit {
+  color: #828fa3;
+}
+
+.editBoard .delete {
+  color: #ea5555;
+}
+
+.board-menu:hover .editBoard {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 14px;
+}
+
 @media (max-width: 1023px) {
-  .board-name {
-    padding-inline-start: 15px;
+  .boardName {
+    padding-inline-start: 70px;
     margin: 0;
+  }
+
+  .padding {
+    padding-inline-start: 22px;
   }
 
   .logo {
@@ -121,7 +179,7 @@ header {
     display: none;
   }
 
-  .board-name {
+  .boardName {
     padding-inline-start: 5px;
     padding-block: 0;
     margin: 0;
@@ -136,6 +194,7 @@ header {
 
   header {
     padding-inline: 20px;
+    height: 70px;
   }
 
   .desc {

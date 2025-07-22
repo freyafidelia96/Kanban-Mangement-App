@@ -21,26 +21,36 @@ const props = defineProps({
 </script>
 
 <style lang="css" scoped>
-.new-task {
+.new-task,
+.new-column {
   background-color: #635fc7;
   border-radius: 28px;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: bold;
   color: white;
-  padding-block: 17px;
-  padding-inline: 24px;
+  padding-block: 15px;
+  padding-inline: 15px;
   border: none;
   display: flex;
   gap: 5px;
-  width: 204px;
+  width: 175px;
   align-items: center;
   justify-content: center;
 }
 
+button {
+  cursor: pointer;
+}
+
+.new-task:hover,
+.new-column:hover {
+  background-color: #a8a4ff;
+}
+
 @media (max-width: 1023px) {
   .new-task {
-    width: 180px;
-    padding-inline: 10px;
+    width: 170px;
+    padding-inline: 8px;
   }
 }
 
