@@ -1,2 +1,2 @@
 export * from "./boards";
-export * from "./mode";
+export * from "./theme";

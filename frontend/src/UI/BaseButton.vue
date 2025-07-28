@@ -22,12 +22,16 @@ const props = defineProps({
 
 <style lang="css" scoped>
 .new-task,
-.new-column {
-  background-color: #635fc7;
+.new-column,
+.new-s-c,
+.save,
+.delete,
+.cancel {
+  background-color: var(--color-purple); /* Changed from #635fc7 */
   border-radius: 28px;
   font-size: 15px;
   font-weight: bold;
-  color: white;
+  color: var(--color-white); /* Changed from white */
   padding-block: 15px;
   padding-inline: 15px;
   border: none;
@@ -38,13 +42,63 @@ const props = defineProps({
   justify-content: center;
 }
 
+.new-s-c,
+.save {
+  width: 416px;
+  color: var(--color-purple); /* Changed from #635fc7 */
+  background-color: var(
+    --color-purple-hover-transparent
+  ); /* Changed from #635fc71a */
+  padding-block: 10px;
+}
+.new-s-c span,
+.save span,
+.delete span,
+.cancel span {
+  display: inline !important;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.delete {
+  background-color: var(--color-red) !important; /* Changed from #ea5555 */
+  color: var(--color-white) !important; /* Changed from white */
+}
+
+.delete span {
+  color: var(--color-white); /* Changed from white */
+}
+
+.cancel span {
+  color: var(--color-purple); /* Changed from #635fc7 */
+}
+
+.delete,
+.cancel {
+  width: 200px;
+  padding-block: 12px;
+}
+
+.cancel {
+  background-color: var(
+    --color-purple-hover-transparent
+  ); /* Changed from #635fc71a */
+}
+
+.save {
+  background-color: var(--color-purple); /* Changed from #635fc7 */
+  color: var(--color-white); /* Changed from white */
+  margin-top: 25px;
+}
+
 button {
   cursor: pointer;
 }
 
 .new-task:hover,
-.new-column:hover {
-  background-color: #a8a4ff;
+.new-column:hover,
+.save:hover {
+  background-color: var(--color-purple-hover); /* Changed from #a8a4ff */
 }
 
 @media (max-width: 1023px) {

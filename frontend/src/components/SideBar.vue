@@ -1,13 +1,13 @@
 <template>
-  <aside class="sidebar" :class="{ view: viewSidebar }">
+  <aside class="sidebar" :class="{ view: !themeStore.getSidebarVisibility }">
     <img
-      src="../assets/images/logo-dark.svg"
+      :src="themeStore.getIsDarkMode ? logoLight : logoDark"
       alt="Kanban logo"
       class="sidebar__logo"
     />
 
     <p class="sidebar__boards-count">
-      ALL BOARDS (<span class="number">{{ boardsNum }}</span
+      ALL BOARDS (<span class="number">{{ boards.length }}</span
       >)
     </p>
 
@@ -25,7 +25,12 @@
 
     <div class="sidebar--create">
       <img src="../assets/images/icon-board.svg" alt="icon-board" />
-      <button class="sidebar__new-btn">+ Create New Board</button>
+      <button
+        @click="emit('send-view', 'create-new-board')"
+        class="sidebar__new-btn"
+      >
+        + Create New Board
+      </button>
     </div>
 
     <div class="flex-end">
@@ -35,7 +40,12 @@
           alt="icon-light-theme"
         />
         <label class="switch">
-          <input type="checkbox" id="themeToggle" @click="toggleMode" />
+          <input
+            type="checkbox"
+            id="themeToggle"
+            :checked="themeStore.getIsDarkMode"
+            @change="themeStore.toggleDarkMode"
+          />
           <span class="slider"></span>
         </label>
 
@@ -54,7 +64,10 @@
     </div>
   </aside>
   <aside :class="{ view: hideSidebar, aside: true }">
-    <button @click="toggleView" :class="{ view: hideSidebar }">
+    <button
+      @click="toggleView"
+      :class="{ view: themeStore.getSidebarVisibility }"
+    >
       <img src="../assets/images/Group 3.svg" alt="Group 3" />
     </button>
   </aside>
@@ -62,16 +75,17 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import { useBoards, useMode } from "../stores";
+import { useBoards, useTheme } from "../stores";
 import BoardItem from "./Boards/BoardItem.vue";
 import { useRoute, useRouter } from "vue-router";
 
+import logoDark from "../assets/images/logo-dark.svg";
+import logoLight from "../assets/images/logo-light.svg";
+
 const boardsStore = useBoards();
-const boards = boardsStore.getBoards;
-const viewSidebar = ref(false);
-const hideSidebar = ref(true);
-const boardsNum = boards.length;
-const mode = useMode();
+const boards = computed(() => boardsStore.getBoards);
+const themeStore = useTheme();
+const emit = defineEmits(["send-view", "send-visibility"]);
 
 const route = useRoute();
 const boardId = computed(() => route.params.id);
@@ -84,18 +98,9 @@ function getLink(id) {
   return `/board/${id}`;
 }
 
-function toggleMode() {
-  mode.changeMode();
-}
-
-const emit = defineEmits(["send-view"]);
-
 function toggleView() {
-  viewSidebar.value = !viewSidebar.value;
-  hideSidebar.value = !hideSidebar.value;
-
-  mode.changeSidebarVisibility();
-  emit("send-view", viewSidebar.value);
+  themeStore.changeSidebarVisibility();
+  emit("send-visibility", themeStore.getSidebarVisibility);
 }
 </script>
 
@@ -103,12 +108,12 @@ function toggleView() {
 .sidebar {
   position: fixed;
   z-index: 2;
-  background-color: white;
+  background-color: var(--background-sidebar); /* Changed */
   height: 100vh;
   width: 300px;
   padding-inline-end: 32px;
   padding-bottom: 40px;
-  border-right: #f4f7fd 2px solid;
+  border-right: 1px solid var(--color-lines-light); /* Changed to use --color-lines-light for border, and removed `var(--color-light-grey)` as that's typically a background/text color, not a border color variable. */
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -124,7 +129,7 @@ function toggleView() {
 .sidebar__boards-count {
   font-size: 13px;
   font-weight: 700;
-  color: #828fa3;
+  color: var(--text-color-body); /* Changed */
   letter-spacing: 2.4px;
   margin-block-start: 58px;
   margin-block-end: 20px;
@@ -146,12 +151,21 @@ function toggleView() {
 }
 
 .sidebar--create img {
+  /* This filter was hardcoded. To be theme-aware,
+     your SVG icon for the board should ideally be monochrome and
+     you can use `fill: currentColor;` on the SVG itself,
+     or use a filter that inverts for dark mode if it's a fixed image.
+     For now, this specific filter is kept but note it might not change with theme.
+     If you want it to be purple, it should be `fill: var(--color-purple);`
+     if it's an SVG that accepts fill. */
   filter: invert(35%) sepia(55%) saturate(7000%) hue-rotate(230deg)
     brightness(90%);
 }
 
 .sidebar__new-btn {
-  color: #635fc7;
+  color: var(
+    --color-purple
+  ); /* Changed from --text-color-button-secondary to --color-purple for direct purple color */
   font-weight: 600;
   font-size: 15px;
 }
@@ -171,7 +185,7 @@ function toggleView() {
 .sidebar--toggleMode {
   /* grid-row: span 1 / 18; */
   display: flex;
-  background-color: #f4f7fd;
+  background-color: var(--background-column-add); /* Changed to use variable */
   align-items: center;
   justify-content: center;
   border-radius: 5px;
@@ -193,23 +207,32 @@ function toggleView() {
 
 .sidebar--hidden img {
   padding-left: 18px;
+  /* If this icon is dark in light mode, it might need a filter like this: */
+  /* filter: var(--theme-icon-filter, none); */
 }
 
 .sidebar--hidden:hover img,
 .sidebar--hidden:hover span {
+  /* This filter was hardcoded. If the icon needs to change color
+     it's better to use `color: var(--color-purple);` on the span and let SVG inherit,
+     or use a dynamic filter. Keeping original for minimal changes. */
   filter: invert(35%) sepia(55%) saturate(7000%) hue-rotate(230deg)
     brightness(90%);
 }
 
 .sidebar--hidden:hover {
-  background-color: #635fc71a;
+  background-color: var(
+    --color-purple-hover-transparent
+  ); /* Changed to use variable */
   border-top-right-radius: 25px;
   border-bottom-right-radius: 25px;
-  color: #635fc7;
+  color: var(
+    --color-purple
+  ); /* Changed from --text-color-button-secondary to --color-purple */
 }
 
 .sidebar--hide {
-  color: #828fa3;
+  color: var(--text-color-body); /* Changed */
   font-weight: 600;
   font-size: 15px;
   background-color: transparent;
@@ -234,14 +257,16 @@ function toggleView() {
   /* 3. draw the purple pill (the track) */
   position: absolute;
   inset: 0; /* top/right/bottom/left: 0 */
-  background: #635fc7;
+  background: var(
+    --color-purple
+  ); /* Changed from --text-color-button-secondary to --color-purple */
   border-radius: 999px; /* fully rounded ends */
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .slider:hover {
-  background: #a8a4ff;
+  background: var(--color-purple-hover); /* Changed */
 }
 
 .slider::before {
@@ -252,15 +277,13 @@ function toggleView() {
   height: 14px;
   left: 3px; /* gap from left edge of track */
   top: 3px; /* gap from top edge of track */
-  background: #fff;
+  background: var(--color-white); /* Changed */
   border-radius: 50%;
   transition: transform 0.2s; /* animate the slide */
 }
 
-.switch input:checked           /* 5. when checkbox is ON …  */
-       + .slider::before {
-  /*    … target knob pseudo-element */
-  transform: translateX(20px); /*    slide knob to the right */
+.switch input:checked + .slider::before {
+  transform: translateX(20px) !important;
 }
 
 .view {
@@ -280,7 +303,7 @@ function toggleView() {
 .aside button {
   padding: 0;
   margin: 0;
-  background-color: transparent;
+  background-color: transparent; /* Changed */
 }
 
 ul {
@@ -297,7 +320,7 @@ a {
 
 button {
   border: none;
-  background-color: white;
+  background-color: transparent; /* Changed from var(--color-white) to transparent */
   cursor: pointer;
 }
 

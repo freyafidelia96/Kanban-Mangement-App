@@ -13,6 +13,8 @@
         :completed="getCompleted(task.subtasks)"
         :task-name="task.title"
         :subtasks-length="getSubtasksLength(task.subtasks)"
+        :task="task"
+        @open="emit('open-task', $event)"
       ></task-item>
     </div>
   </div>
@@ -20,6 +22,7 @@
 
 <script setup>
 import TaskItem from "./TaskItem.vue";
+const emit = defineEmits(["open-task"]);
 const props = defineProps({
   label: {
     type: String,
@@ -60,12 +63,12 @@ function getSubtasksLength(subtasks) {
 .circle {
   width: 15px;
   height: 15px;
-  background-color: #49c4e5;
+  background-color: var(--color-blue); /* Changed from #49c4e5 */
   border-radius: 50%;
 }
 
 .desc {
-  color: #828fa3;
+  color: var(--text-color-body); /* Changed from #828fa3 */
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 2.2px;

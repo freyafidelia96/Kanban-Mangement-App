@@ -4,7 +4,7 @@
       <div class="desc">
         <div class="logo">
           <img
-            src="../assets/images/logo-dark.svg"
+            :src="themeStore.getIsDarkMode ? logoLight : logoDark"
             alt="logo-dark"
             class="big-screen"
           />
@@ -14,11 +14,18 @@
             class="small-screen"
           />
         </div>
-        <div :class="{ boardName: true, padding: view }">Platform Launch</div>
+        <div
+          :class="{
+            boardName: true,
+            padding: !themeStore.getSidebarVisibility,
+          }"
+        >
+          Platform Launch
+        </div>
       </div>
       <div class="actions">
         <div class="btn-add-new-task">
-          <base-button label="Add New Task">
+          <base-button @click="emit('add-new-task')" label="Add New Task">
             <template #icon>
               <img
                 class="add"
@@ -36,8 +43,10 @@
             />
           </button>
           <div class="editBoard">
-            <button class="edit">Edit Board</button>
-            <button class="delete">Delete Board</button>
+            <button class="edit" @click="emit('edit-board')">Edit Board</button>
+            <button class="delete" @click="emit('delete-board')">
+              Delete Board
+            </button>
           </div>
         </div>
       </div>
@@ -47,13 +56,21 @@
 
 <script setup>
 import { inject } from "vue";
+import { useTheme } from "../stores";
+
+import logoDark from "../assets/images/logo-dark.svg";
+import logoLight from "../assets/images/logo-light.svg";
+
 const view = inject("view");
+
+const themeStore = useTheme();
+const emit = defineEmits(["edit-board", "delete-board", "add-new-task"]);
 </script>
 
 <style scoped>
 .boardName {
   font-size: 25px;
-  color: #000112;
+  color: var(--text-color-heading); /* Changed from #000112 */
   font-weight: 700;
   padding-inline-start: 100px;
   padding-block: 31px;
@@ -66,16 +83,17 @@ const view = inject("view");
 
 .logo {
   padding-inline-end: 36px;
-  border-right: #e4ebfa solid 1px;
+  border-right: var(--color-lines-light) solid 1px; /* Changed from #e4ebfa */
   padding-block: 31px;
 }
 
 header {
   display: flex;
-  height: 100px;
-  background-color: white;
+  height: 90px;
+  background-color: var(--background-header); /* Changed from white */
   justify-content: space-between;
   padding-inline: 34px;
+  border-bottom: 0.1px solid var(--color-lines-light);
   top: 0;
   left: 0;
   position: fixed;
@@ -110,7 +128,7 @@ header {
 button {
   cursor: pointer;
   border: none;
-  background-color: transparent;
+  background-color: transparent; /* Assuming you want transparent, not white */
 }
 
 .board-menu {
@@ -125,17 +143,19 @@ button {
   height: auto;
   right: 5px;
   top: 60px;
-  background-color: white;
+  background-color: var(
+    --background-dialog
+  ); /* Changed from white for pop-up menu */
   padding: 15px;
   border-radius: 10px;
 }
 
 .editBoard .edit {
-  color: #828fa3;
+  color: var(--text-color-body); /* Changed from #828fa3 */
 }
 
 .editBoard .delete {
-  color: #ea5555;
+  color: var(--color-red); /* Changed from #ea5555 */
 }
 
 .board-menu:hover .editBoard {

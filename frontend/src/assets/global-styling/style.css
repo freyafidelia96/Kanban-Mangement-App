@@ -1,3 +1,116 @@
+:root,
+.theme-light {
+  /* Primary Colors */
+  --color-purple: #635fc7;
+  --color-purple-hover: #a8a4ff;
+  --color-red: #ea5555;
+  --color-red-hover: #ff9898;
+  --text-color-heading: #000112; /* Very dark blue */
+  --color-lines-light: #e4ebfa; /* Light greyish-blue */
+  --color-blue: #49c4e5;
+  --text-color-heading: #000112;
+
+  /* Neutrals (Light Mode Specific) */
+  --color-black: #000112;
+  --color-white: #ffffff;
+  --color-light-grey: #f4f7fd;
+  --color-medium-grey: #828fa3;
+  --color-dark-grey: #2b2c37; /* This might be used for text in dark mode, but we'll adapt */
+  --color-lines-light: #e4ebfa;
+  --color-lines-dark: #3e3f4e; /* This is typically for dark mode lines, adapt as needed */
+  --box-shadow-task-card: 0 2px 4px rgba(0, 0, 0, 0.06),
+    0 8px 16px rgba(0, 0, 0, 0.04);
+
+  --background-task-card: var(--color-white); /* Typically white */
+
+  /* UI Element Backgrounds & Text Colors */
+  --background-body: var(--color-light-grey); /* Overall page background */
+  --background-sidebar: var(--color-white);
+  --background-header: var(--color-white);
+  --background-dialog: var(--color-white);
+  --background-column-add: var(--color-light-grey);
+  --background-new-column: #e9effa;
+  --background-task-card: var(--color-white);
+  --background-status-select: var(--color-white);
+  --background-header: var(--color-white);
+  --background-dialog: var(--color-white);
+  --backdrop-background: rgba(0, 0, 0, 0.5); /* 50% black overlay */
+  --background-subtask-item-hover: #a8a4ff; /* This is the definition of the variable */
+  --background-subtask-item: #e4ebfa; /* The light greyish-blue for subtask item background */
+
+  --text-color-body: #828fa3; /* Medium grey */
+  --text-color-heading: var(--color-black);
+  --text-color-status: var(var(--color-black));
+  --text-color-body: var(--color-medium-grey);
+  --text-color-placeholder: var(--color-medium-grey);
+  --text-color-button-primary: var(--color-white);
+  --text-color-button-secondary: var(--color-purple);
+  --color-purple-hover-transparent: rgba(
+    99,
+    95,
+    199,
+    0.1
+  ); /* This is the 10% opacity version of --color-purple */
+
+  --border-color-input: #d3dcee;
+}
+
+/* Dark Theme Overrides (applied to .theme-dark) */
+.theme-dark {
+  /* Reuse primary colors */
+  --color-purple: #635fc7;
+  --color-purple-hover: #a8a4ff;
+  --color-red: #ea5555;
+  --color-red-hover: #ff9898;
+  --text-color-heading: var(--color-white); /* White or light grey */
+  --color-lines-light: #434242; /* Darker grey for lines in dark mode */
+  --color-blue: #49c4e5;
+
+  --background-task-card: #2b2c37; /* A dark grey for task cards */
+
+  /* Neutrals (Dark Mode Specific) */
+  --color-black: #000112; /* Still black, but often unused directly in dark mode */
+  --color-white: #ffffff; /* Still white, used for contrast */
+  --color-light-grey: #2b2c37; /* Not typically used in dark mode */
+  --color-medium-grey: #828fa3; /* Still for muted text */
+  --color-dark-grey: #2b2c37; /* Main dark background */
+  --color-very-dark-grey: #20212c;
+
+  --box-shadow-task-card: 0 4px 6px rgba(0, 0, 0, 0.2),
+    0 10px 20px rgba(0, 0, 0, 0.15); /* Example: slightly stronger, more opaque shadow for dark mode contrast */
+
+  /* UI Element Backgrounds & Text Colors - OVERRIDES */
+  --background-body: var(--color-very-dark-grey); /* Deeper dark background */
+  --background-sidebar: var(--color-dark-grey);
+  --background-header: var(--color-dark-grey);
+  --background-dialog: var(--color-dark-grey);
+  --background-column-add: var(
+    --color-light-grey
+  ); /* Same as body for consistency */
+  --background-new-column: var(--color-light-grey);
+
+  --background-task-card: var(--color-dark-grey);
+  --background-status-select: var(--color-dark-grey);
+  --background-header: #2b2c37; /* Dark background for header */
+  --background-dialog: #2b2c37; /* Or a slightly lighter dark for contrast with main background */
+  --backdrop-background: rgba(0, 0, 0, 0.5); /* 50% black overlay */
+  --background-subtask-item-hover: #635fc7; /* Example: You might want the primary purple for hover in dark mode */
+  --background-subtask-item: #20212c; /* A slightly lighter dark grey for subtask item background in dark mode */
+
+  --text-color-status: var(--color-white); /* Light text for headings */
+  --text-color-body: var(
+    --color-medium-grey
+  ); /* Or a very light grey for body text */
+  --text-color-placeholder: var(--color-medium-grey);
+  --text-color-button-primary: var(--color-white);
+  --text-color-button-secondary: var(--color-purple);
+  --text-color-heading: var(--color-white);
+
+  --color-purple-hover-transparent: var(--color-white);
+
+  --border-color-input: #828fa340; /* Lighter border in dark mode */
+}
+
 html,
 body,
 #app,
@@ -10,7 +123,8 @@ body,
 }
 
 body {
-  background-color: #f4f7fd;
+  background-color: var(--background-body);
+  transition: background-color 0.2s ease; /* Smooth transition for theme change */
 }
 
 *,

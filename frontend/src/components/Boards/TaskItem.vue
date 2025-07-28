@@ -1,14 +1,15 @@
 <template>
-  <div class="task-wrapper">
+  <div class="task-wrapper" @click="$emit('open', task)">
     <p>{{ taskName }}</p>
-    <small
-      ><span class="completed">{{ completed }}</span
-      >of <span class="subtasks">{{ subtasksLength }}</span> subtasks</small
-    >
+    <small>
+      <span class="completed">{{ completed }}</span>
+      of <span class="subtasks">{{ subtasksLength }}</span> subtasks
+    </small>
   </div>
 </template>
 
 <script setup>
+defineEmits(["open"]);
 const props = defineProps({
   taskName: {
     type: String,
@@ -22,19 +23,26 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+
+  task: {
+    type: Object,
+    default: null,
+  },
 });
+
+function showDialog(taskName) {}
 </script>
 
 <style scoped>
 .task-wrapper {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06),
-    /* tight, light edge */ 0 8px 16px rgba(0, 0, 0, 0.04);
+  /* Box-shadows need to be dynamic for dark theme */
+  box-shadow: var(--box-shadow-task-card); /* Replaced hardcoded rgba values */
   display: flex;
   flex-direction: column;
   gap: 5px;
   align-items: flex-start;
   justify-content: flex-start;
-  background-color: white;
+  background-color: var(--background-task-card); /* Changed from white */
   width: 280px;
   cursor: pointer;
   padding-block: 20px;
@@ -43,7 +51,7 @@ const props = defineProps({
 }
 
 .task-wrapper p {
-  color: #000112;
+  color: var(--text-color-heading); /* Changed from #000112 */
   font-size: 15px;
   font-weight: bold;
   margin: 0;
@@ -51,8 +59,12 @@ const props = defineProps({
 }
 
 .task-wrapper small {
-  color: #828fa3;
+  color: var(--text-color-body); /* Changed from #828fa3 */
   font-size: 12px;
   font-weight: 600;
+}
+
+.task-wrapper:hover p {
+  color: var(--color-purple); /* Changed from #635fc7 */
 }
 </style>
