@@ -4,6 +4,7 @@
       @edit-board="handleEditBoard"
       @delete-board="handleDeleteBoard"
       @add-new-task="handleAddNewTask"
+      @add-board="handleDialog"
     ></the-header>
     <side-bar
       @send-visibility="handleView"

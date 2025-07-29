@@ -1,10 +1,11 @@
 <template>
   <div
-    :style="{ paddingLeft: padding + 'px' }"
     :class="[
       'board-view',
       {
         'board-view--empty': board.columns.length === 0,
+        'has-sidebar': sidebarVisible,
+        noSidebar: !sidebarVisible,
       },
     ]"
   >
@@ -100,7 +101,6 @@ const board = computed(() => {
 });
 
 const sidebarVisible = computed(() => theme.getSidebarVisibility);
-const padding = computed(() => (sidebarVisible.value ? 320 : 20));
 
 function openTask(task) {
   modelValue.value = true;
@@ -147,6 +147,10 @@ function handleEditedBoard(updatedBoardData) {
 </script>
 
 <style scoped>
+.has-sidebar {
+  padding-left: 320px;
+}
+
 .big-column {
   height: 100vh;
   background-color: var(--background-new-column); /* Changed from #e4ebfa */
@@ -172,7 +176,7 @@ function handleEditedBoard(updatedBoardData) {
 }
 
 .noSidebar {
-  padding-left: 320px;
+  padding-left: 20px;
 }
 
 /* .pageContent {
@@ -232,9 +236,19 @@ function handleEditedBoard(updatedBoardData) {
   align-items: flex-start;
 }
 
-@media (max-width: 766px) {
-  .board-view {
-    padding-left: 20px !important;
+@media (max-width: 769px) {
+  .has-sidebar {
+    padding-left: 270px;
+  }
+}
+
+@media (max-width: 541px) {
+  .has-sidebar {
+    padding-left: 20px;
+  }
+
+  .board-view:not(.board-view--empty) {
+    padding-top: 100px;
   }
 }
 </style>

@@ -20,7 +20,16 @@
             padding: !themeStore.getSidebarVisibility,
           }"
         >
-          Platform Launch
+          <span>Platform Launch</span>
+          <img
+            :src="showDropDown ? iconChevronDown : iconChevronUp"
+            :alt="showDropDown ? 'close dropdown' : 'open dropdown'"
+            class="icon-up"
+            :class="{
+              'rotate-180': true,
+            }"
+            @click="handleDropdown"
+          />
         </div>
       </div>
       <div class="actions">
@@ -51,23 +60,85 @@
         </div>
       </div>
     </header>
+    <sidebar-dialog
+      v-model="showSidebarDialog"
+      @send-view="createNewBoard"
+    ></sidebar-dialog>
   </div>
 </template>
 
 <script setup>
-import { inject } from "vue";
-import { useTheme } from "../stores";
+import { inject, ref, onMounted, onUnmounted, computed, watch } from "vue";
+import { useTheme, useBoards } from "../stores";
 
 import logoDark from "../assets/images/logo-dark.svg";
 import logoLight from "../assets/images/logo-light.svg";
+import SidebarDialog from "../UI/SidebarDialog.vue";
+
+import iconChevronUp from "../assets/images/icon-chevron-up.svg";
+import iconChevronDown from "../assets/images/icon-chevron-down.svg";
 
 const view = inject("view");
+const boards = useBoards();
+const showDropDown = ref(false);
 
 const themeStore = useTheme();
-const emit = defineEmits(["edit-board", "delete-board", "add-new-task"]);
+const emit = defineEmits([
+  "edit-board",
+  "delete-board",
+  "add-new-task",
+  "add-board",
+]);
+
+const isSmallScreen = ref(false); // New state to track large screen size
+
+function handleDropdown() {
+  showDropDown.value = !showDropDown.value;
+  showSidebarDialog.value = showDropDown.value && isSmallScreen;
+  console.log(showDropDown.value, showSidebarDialog.value, isSmallScreen.value);
+}
+
+const showSidebarDialog = ref(false);
+// Function to check screen size
+const checkScreenSize = () => {
+  isSmallScreen.value = window.innerWidth <= 540; // Adjust breakpoint as needed (e.g., 768px, 1024px)
+  if (!isSmallScreen.value && showDropDown.value) {
+    showDropDown.value = false;
+  }
+};
+
+function createNewBoard() {
+  emit("add-board", "create-new-board");
+}
+
+watch(showSidebarDialog, (newValue) => {
+  if (!newValue) {
+    // If showSidebarDialog becomes false
+    showDropDown.value = false; // Ensure the dropdown arrow also goes to the "closed" state
+  }
+});
+
+// Set initial screen size on component mount
+onMounted(() => {
+  checkScreenSize();
+  window.addEventListener("resize", checkScreenSize);
+});
+
+// Clean up event listener on component unmount
+onUnmounted(() => {
+  window.removeEventListener("resize", checkScreenSize);
+});
 </script>
 
 <style scoped>
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+.icon-up {
+  display: none;
+  cursor: pointer;
+}
 .boardName {
   font-size: 25px;
   color: var(--text-color-heading); /* Changed from #000112 */
@@ -75,6 +146,9 @@ const emit = defineEmits(["edit-board", "delete-board", "add-new-task"]);
   padding-inline-start: 100px;
   padding-block: 31px;
   letter-spacing: 0px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .padding {
@@ -223,6 +297,25 @@ button {
 
   .actions {
     gap: 15px;
+  }
+}
+
+@media (max-width: 541px) {
+  .boardName {
+    font-size: 20px;
+  }
+
+  header {
+    padding-inline: 10px;
+  }
+
+  .actions {
+    gap: 5px;
+  }
+
+  .icon-up {
+    display: inline;
+    transition: transform 0.2s ease;
   }
 }
 </style>

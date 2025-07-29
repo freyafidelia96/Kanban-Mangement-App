@@ -118,4 +118,16 @@ button {
     width: 50px;
   }
 }
+
+@media (max-width: 540px) {
+  .new-s-c,
+  .save {
+    width: 270px;
+  }
+
+  .delete,
+  .cancel {
+    width: 270px;
+  }
+}
 </style>

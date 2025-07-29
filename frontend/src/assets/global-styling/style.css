@@ -29,6 +29,7 @@
   --background-header: var(--color-white);
   --background-dialog: var(--color-white);
   --background-column-add: var(--color-light-grey);
+  --background-sidebar-small: var(--color-light-grey);
   --background-new-column: #e9effa;
   --background-task-card: var(--color-white);
   --background-status-select: var(--color-white);
@@ -84,6 +85,8 @@
   --background-sidebar: var(--color-dark-grey);
   --background-header: var(--color-dark-grey);
   --background-dialog: var(--color-dark-grey);
+  --background-sidebar-small: var(--color-very-dark-grey);
+
   --background-column-add: var(
     --color-light-grey
   ); /* Same as body for consistency */

@@ -226,4 +226,14 @@ textarea:focus {
   font-size: 1.25rem;
   cursor: pointer;
 }
+
+@media (max-width: 540px) {
+  .dialog {
+    width: 313px;
+  }
+
+  .deleteControls {
+    flex-direction: column;
+  }
+}
 </style>
