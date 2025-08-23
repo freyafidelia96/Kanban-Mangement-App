@@ -1,10 +1,12 @@
 <template>
   <div class="task-wrapper" @click="$emit('open', task)">
-    <p>{{ taskName }}</p>
-    <small>
-      <span class="completed">{{ completed }}</span>
-      of <span class="subtasks">{{ subtasksLength }}</span> subtasks
-    </small>
+    <div class="task-drag-handle">
+      <p>{{ taskName }}</p>
+      <small>
+        <span class="completed">{{ completed }}</span>
+        of <span class="subtasks">{{ subtasksLength }}</span> subtasks
+      </small>
+    </div>
   </div>
 </template>
 
@@ -66,5 +68,19 @@ function showDialog(taskName) {}
 
 .task-wrapper:hover p {
   color: var(--color-purple); /* Changed from #635fc7 */
+}
+
+.task-drag-handle {
+  width: 100%;
+  cursor: grab;
+}
+
+.task-wrapper {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.task-wrapper:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-task-hover);
 }
 </style>

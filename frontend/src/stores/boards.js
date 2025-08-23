@@ -9,6 +9,7 @@ export const useBoards = defineStore("boards", {
           name: "Platform Launch",
           columns: [
             {
+              id: "col-1-todo-abc",
               name: "Todo",
               tasks: [
                 {
@@ -75,6 +76,7 @@ export const useBoards = defineStore("boards", {
               ],
             },
             {
+              id: "col-1-doing-def",
               name: "Doing",
               tasks: [
                 {
@@ -190,6 +192,7 @@ export const useBoards = defineStore("boards", {
               ],
             },
             {
+              id: "col-1-done-ghi",
               name: "Done",
               tasks: [
                 {
@@ -305,6 +308,7 @@ export const useBoards = defineStore("boards", {
           name: "Marketing Plan",
           columns: [
             {
+              id: "col-2-todo-abc",
               name: "Todo",
               tasks: [
                 {
@@ -383,10 +387,12 @@ export const useBoards = defineStore("boards", {
               ],
             },
             {
+              id: "col-2-doing-def",
               name: "Doing",
               tasks: [],
             },
             {
+              id: "col-2-done-ghi",
               name: "Done",
               tasks: [],
             },
@@ -397,6 +403,7 @@ export const useBoards = defineStore("boards", {
           name: "Roadmap",
           columns: [
             {
+              id: "col-now-abc",
               name: "Now",
               tasks: [
                 {
@@ -439,10 +446,12 @@ export const useBoards = defineStore("boards", {
               ],
             },
             {
+              id: "col-next-def",
               name: "Next",
               tasks: [],
             },
             {
+              id: "col-later-ghi",
               name: "Later",
               tasks: [],
             },
