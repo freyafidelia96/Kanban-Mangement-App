@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import generics, status
+from rest_framework import generics, status, serializers
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions
 from .models import User, Board, Column, Task, Subtask
@@ -39,24 +39,126 @@ class CustomObtainAuthToken(ObtainAuthToken):
         
 # Board ViewSet
 class BoardViewSet(viewsets.ModelViewSet):
-    queryset = Board.objects.all()
     serializer_class = BoardSerializer
     permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        # Only return boards belonging to the current user
+        return Board.objects.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        # Save the board with the current user as owner
+        board = serializer.save(owner=self.request.user)
+        
+        print(f"DEBUG: Board created - ID: {board.id}, Title: {board.title}, Owner: {board.owner.username}")
+        
+        # Create columns if they were included in the request
+        columns_data = self.request.data.get('columns', [])
+        print(f"DEBUG: Columns data received: {columns_data}")
+        
+        if columns_data:
+            for idx, column_data in enumerate(columns_data):
+                column = Column.objects.create(
+                    board=board,
+                    name=column_data.get('name', ''),
+                    order=idx
+                )
+                print(f"DEBUG: Column created - ID: {column.id}, Name: {column.name}, Board: {board.id}")
         
 class ColumnViewSet(viewsets.ModelViewSet):
-    queryset = Column.objects.all()
     serializer_class = ColumnSerializer
     permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        # Filter columns by board, and ensure the board belongs to the current user
+        return Column.objects.filter(board__owner=self.request.user)
 
 class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        # Filter tasks by ensuring they belong to columns of boards owned by the current user
+        return Task.objects.filter(column__board__owner=self.request.user)
+        
+    def perform_create(self, serializer):
+        try:
+            # Print received data for debugging
+            print(f"DEBUG: Task creation data received: {self.request.data}")
+            
+            # Make sure column is included
+            if 'column' not in self.request.data:
+                print("ERROR: No column ID provided in the request")
+                raise serializers.ValidationError({"column": "This field is required."})
+            
+            # Debug column value
+            column_value = self.request.data.get('column')
+            print(f"DEBUG: Column value received: {column_value}, type: {type(column_value)}")
+            
+            # Validate column exists
+            try:
+                from .models import Column
+                column_obj = Column.objects.get(pk=column_value)
+                print(f"DEBUG: Found column with ID {column_value}: {column_obj.name}")
+            except Exception as e:
+                print(f"ERROR: Could not find column with ID {column_value}: {str(e)}")
+                raise serializers.ValidationError({"column": f"Column with ID {column_value} does not exist."})
+                
+            task = serializer.save()
+            print(f"DEBUG: Task created - ID: {task.id}, Title: {task.title}, Column: {task.column.name}")
+            
+            # Check for subtasks in the request data
+            subtasks_data = self.request.data.get('subtasks', [])
+            print(f"DEBUG: Subtasks data received: {subtasks_data}")
+            
+            # Create subtasks if included
+            if subtasks_data:
+                for subtask_data in subtasks_data:
+                    subtask = Subtask.objects.create(
+                        task=task,
+                        title=subtask_data.get('title', ''),
+                        is_completed=subtask_data.get('is_completed', False)
+                    )
+                    print(f"DEBUG: Subtask created - ID: {subtask.id}, Title: {subtask.title}, Task: {task.id}")
+        except Exception as e:
+            print(f"ERROR creating task: {str(e)}")
+            raise
 
 class SubtaskViewSet(viewsets.ModelViewSet):
-    queryset = Subtask.objects.all()
     serializer_class = SubtaskSerializer
     permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        # Filter subtasks by ensuring they belong to tasks in columns of boards owned by the current user
+        return Subtask.objects.filter(task__column__board__owner=self.request.user)
+    
+    def perform_create(self, serializer):
+        try:
+            # Print received data for debugging
+            print(f"DEBUG: Subtask creation data received: {self.request.data}")
+            
+            # Make sure task is included
+            if 'task' not in self.request.data:
+                print("ERROR: No task ID provided in the request")
+                raise serializers.ValidationError({"task": "This field is required."})
+            
+            # Debug task value
+            task_id = self.request.data.get('task')
+            print(f"DEBUG: Task ID received: {task_id}, type: {type(task_id)}")
+            
+            # Validate task exists
+            try:
+                from .models import Task
+                task_obj = Task.objects.get(pk=task_id)
+                print(f"DEBUG: Found task with ID {task_id}: {task_obj.title}")
+            except Exception as e:
+                print(f"ERROR: Could not find task with ID {task_id}: {str(e)}")
+                raise serializers.ValidationError({"task": f"Task with ID {task_id} does not exist."})
+            
+            # Save the subtask
+            subtask = serializer.save()
+            print(f"DEBUG: Subtask created - ID: {subtask.id}, Title: {subtask.title}, Task: {subtask.task.id}")
+            
+        except Exception as e:
+            print(f"ERROR creating subtask: {str(e)}")
+            raise

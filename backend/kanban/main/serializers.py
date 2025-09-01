@@ -18,22 +18,37 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
       
       
-class BoardSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Board
-        fields = ['id', 'title', 'owner', 'created_at', 'updated_at']
-
-class ColumnSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Column
-        fields = ['id', 'board', 'name', 'order']
-
-class TaskSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Task
-        fields = ['id', 'column', 'title', 'description', 'status', 'order']
-
 class SubtaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subtask
-        fields = ['id', 'task', 'title', 'is_completed']
+        fields = ['id', 'title', 'is_completed', 'task']
+
+class TaskSerializer(serializers.ModelSerializer):
+    subtasks = SubtaskSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Task
+        fields = ['id', 'title', 'description', 'status', 'order', 'subtasks', 'column']
+
+class ColumnSerializer(serializers.ModelSerializer):
+    tasks = TaskSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Column
+        fields = ['id', 'name', 'order', 'tasks']
+
+class BoardSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    columns = ColumnSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Board
+        fields = ['id', 'title', 'owner', 'created_at', 'updated_at', 'columns']
+        
+    def create(self, validated_data):
+        # Create the board first
+        board = Board.objects.create(**validated_data)
+        return board
+
+
+# These serializers are now defined above with nested relations
