@@ -10,7 +10,7 @@ const routes = [
   {
     path: "/board/:id",
     component: BoardView,
-    // Removed requireAuth to allow access to dummy data without login
+    beforeEnter: requireAuth,
   },
   {
     path: "/login",
