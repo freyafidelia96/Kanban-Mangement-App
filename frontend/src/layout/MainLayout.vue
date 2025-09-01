@@ -1,15 +1,18 @@
 <template>
   <div class="layout-wrapper">
-    <the-header
-      @edit-board="handleEditBoard"
-      @delete-board="handleDeleteBoard"
-      @add-new-task="handleAddNewTask"
-      @add-board="handleDialog"
-    ></the-header>
-    <side-bar
-      @send-visibility="handleView"
-      @send-view="handleDialog"
-    ></side-bar>
+    <!-- Only show header and sidebar if not on login or register pages -->
+    <template v-if="!isAuthPage">
+      <the-header
+        @edit-board="handleEditBoard"
+        @delete-board="handleDeleteBoard"
+        @add-new-task="handleAddNewTask"
+        @add-board="handleDialog"
+      ></the-header>
+      <side-bar
+        @send-visibility="handleView"
+        @send-view="handleDialog"
+      ></side-bar>
+    </template>
     <router-view></router-view>
     <board-dialog
       v-model="showBoardDialog"
@@ -34,7 +37,7 @@
 </template>
 
 <script setup>
-import { provide, ref, computed } from "vue";
+import { provide, ref, computed, onMounted, onUnmounted } from "vue";
 import TheHeader from "../components/TheHeader.vue";
 import SideBar from "../components/SideBar.vue";
 import { RouterView, useRoute, useRouter } from "vue-router";
@@ -55,6 +58,23 @@ const showEditBoardDialog = ref(false);
 const showDeleteBoardDialog = ref(false);
 const showAddTaskDialog = ref(false);
 
+const isAuthPage = computed(() => {
+  return route.path === "/login" || route.path === "/register";
+});
+
+// Listen for the custom event
+onMounted(() => {
+  document.addEventListener("open-board-dialog", () => {
+    showBoardDialog.value = true;
+  });
+});
+
+onUnmounted(() => {
+  document.removeEventListener("open-board-dialog", () => {
+    showBoardDialog.value = true;
+  });
+});
+
 const currentBoard = computed(() => {
   const boardId = Number(route.params.id);
   return boards.getBoards.find((b) => b.id === boardId);
@@ -70,11 +90,27 @@ function handleView(value) {
   view.value = value;
 }
 
-function createNewBoard(newBoardData) {
-  boards.addBoard(newBoardData);
+async function createNewBoard(newBoardData) {
+  try {
+    // Create the new board using your store action
+    const newBoardId = await boards.addBoard(newBoardData);
+
+    console.log("New board created with ID:", newBoardId);
+
+    // Navigate to the new board using its ID
+    if (newBoardId !== undefined) {
+      // Use router to navigate to the new board
+      router.push(`/board/${newBoardId}`);
+    }
+  } catch (error) {
+    console.error("Failed to create board:", error);
+    alert(`Error creating board: ${error.message}`);
+  }
 }
 
 function handleEditBoard() {
+  if (isAuthPage.value) return; // Don't process on auth pages
+
   if (currentBoard) {
     showEditBoardDialog.value = true;
   } else {
@@ -87,6 +123,8 @@ function handleEditedBoard(updatedBoardData) {
 }
 
 function handleDeleteBoard() {
+  if (isAuthPage.value) return; // Don't process on auth pages
+
   if (currentBoard.value) {
     showDeleteBoardDialog.value = true;
   } else {
@@ -111,6 +149,8 @@ function handleConfirmDeleteBoard() {
 }
 
 function handleAddNewTask() {
+  if (isAuthPage.value) return; // Don't process on auth pages
+
   if (currentBoard.value) {
     showAddTaskDialog.value = true;
   } else {
@@ -132,4 +172,6 @@ function handleAddNewTaskConfirmed(newTaskData) {
   width: 100%;
   height: 100%;
 }
+
+/* Additional styling for auth pages can be added here if needed */
 </style>

@@ -43,18 +43,48 @@
               />
             </template>
           </base-button>
+          <!-- Only show login button when not authenticated -->
+          <base-button
+            v-if="!isAuthenticated"
+            label="Login"
+            btnType="login"
+            @click="handleLogin"
+          ></base-button>
         </div>
-        <div class="board-menu">
-          <button class="dots">
+        <div
+          class="board-menu"
+          @mouseenter="handleMouseEnter"
+          @mouseleave="handleMouseLeave"
+          @focusin="showBoardOptions = true"
+          @focusout="handleFocusOut"
+        >
+          <button
+            class="dots"
+            aria-label="Board options"
+            :aria-expanded="showBoardOptions"
+            @click="toggleBoardOptions"
+            tabindex="0"
+          >
             <img
               src="../assets/images/icon-vertical-ellipsis.svg"
               alt="icon-vertical-ellipsis"
             />
           </button>
-          <div class="editBoard">
-            <button class="edit" @click="emit('edit-board')">Edit Board</button>
-            <button class="delete" @click="emit('delete-board')">
+          <div class="editBoard" :class="{ 'show-options': showBoardOptions }">
+            <button class="edit" @click="handleEditClick" tabindex="0">
+              Edit Board
+            </button>
+            <button class="delete" @click="handleDeleteClick" tabindex="0">
               Delete Board
+            </button>
+            <!-- Show logout button only when authenticated -->
+            <button
+              v-if="isAuthenticated"
+              class="logout"
+              @click="handleLogout"
+              tabindex="0"
+            >
+              Logout
             </button>
           </div>
         </div>
@@ -69,7 +99,8 @@
 
 <script setup>
 import { inject, ref, onMounted, onUnmounted, computed, watch } from "vue";
-import { useTheme, useBoards } from "../stores";
+import { useRouter } from "vue-router";
+import { useTheme, useBoards, useAuthStore } from "../stores";
 
 import logoDark from "../assets/images/logo-dark.svg";
 import logoLight from "../assets/images/logo-light.svg";
@@ -78,11 +109,16 @@ import SidebarDialog from "../UI/SidebarDialog.vue";
 import iconChevronUp from "../assets/images/icon-chevron-up.svg";
 import iconChevronDown from "../assets/images/icon-chevron-down.svg";
 
+const router = useRouter();
+
 const view = inject("view");
 const boards = useBoards();
+const auth = useAuthStore();
 const showDropDown = ref(false);
+const showBoardOptions = ref(false); // New ref for controlling board options visibility
 
 const themeStore = useTheme();
+const isAuthenticated = computed(() => auth.isAuthenticated);
 const emit = defineEmits([
   "edit-board",
   "delete-board",
@@ -91,6 +127,17 @@ const emit = defineEmits([
 ]);
 
 const isSmallScreen = ref(false); // New state to track large screen size
+
+function handleLogin() {
+  console.log("Login clicked");
+  router.push("/login");
+}
+
+function handleLogout() {
+  console.log("Logout clicked");
+  auth.logout();
+  // The router.push to login page is handled in the logout function in auth store
+}
 
 function handleDropdown() {
   showDropDown.value = !showDropDown.value;
@@ -118,19 +165,87 @@ watch(showSidebarDialog, (newValue) => {
   }
 });
 
+// Variable to track mouseenter/mouseleave timeouts
+let menuTimeout = null;
+
+// Handle mouseenter with a small delay to prevent accidental triggers
+function handleMouseEnter() {
+  if (menuTimeout) clearTimeout(menuTimeout);
+  showBoardOptions.value = true;
+}
+
+// Handle mouseleave with a small delay to make the menu less jumpy
+function handleMouseLeave() {
+  if (menuTimeout) clearTimeout(menuTimeout);
+  menuTimeout = setTimeout(() => {
+    showBoardOptions.value = false;
+  }, 100);
+}
+
+// Handle focusout with a small delay to allow clicking menu items
+function handleFocusOut(event) {
+  // Check if the new focus target is within our menu
+  if (!event.currentTarget.contains(event.relatedTarget)) {
+    setTimeout(() => {
+      showBoardOptions.value = false;
+    }, 100);
+  }
+}
+
+// Handle clicks outside the board menu
+function handleClickOutside(event) {
+  const boardMenu = document.querySelector(".board-menu");
+  if (boardMenu && !boardMenu.contains(event.target)) {
+    showBoardOptions.value = false;
+  }
+}
+
+// Toggle board options menu with keyboard or click
+function toggleBoardOptions(event) {
+  // Stop event propagation to prevent it from triggering handleClickOutside
+  event.stopPropagation();
+  showBoardOptions.value = !showBoardOptions.value;
+
+  // Log to check if the function is being called
+  console.log("Board options toggled:", showBoardOptions.value);
+}
+
+// Handle edit board click
+function handleEditClick(event) {
+  event.stopPropagation(); // Prevent bubbling
+  emit("edit-board");
+  showBoardOptions.value = false; // Hide menu after action
+}
+
+// Handle delete board click
+function handleDeleteClick(event) {
+  event.stopPropagation(); // Prevent bubbling
+  emit("delete-board");
+  showBoardOptions.value = false; // Hide menu after action
+}
+
 // Set initial screen size on component mount
 onMounted(() => {
   checkScreenSize();
   window.addEventListener("resize", checkScreenSize);
+  // Add global click listener to close menu when clicking outside
+  document.addEventListener("mousedown", handleClickOutside);
 });
 
-// Clean up event listener on component unmount
+// Clean up event listeners on component unmount
 onUnmounted(() => {
   window.removeEventListener("resize", checkScreenSize);
+  document.removeEventListener("mousedown", handleClickOutside);
 });
 </script>
 
 <style scoped>
+.btn-add-new-task {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .rotate-180 {
   transform: rotate(180deg);
 }
@@ -187,7 +302,7 @@ header {
 .actions {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 20px;
 }
 
 .actions > img {
@@ -210,8 +325,17 @@ button {
   display: inline-block;
 }
 
+.board-menu .dots {
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.board-menu .dots:hover {
+  background-color: var(--background-subtle);
+}
+
 .board-menu .editBoard {
-  display: none;
   position: absolute;
   width: 192px;
   height: auto;
@@ -222,22 +346,59 @@ button {
   ); /* Changed from white for pop-up menu */
   padding: 15px;
   border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  display: none; /* Hidden by default */
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 3px;
+  z-index: 100;
+}
+
+/* Show the menu when this class is applied */
+.board-menu .editBoard.show-options {
+  display: flex; /* Show as flex when active */
 }
 
 .editBoard .edit {
   color: var(--text-color-body); /* Changed from #828fa3 */
+  width: 100%;
+  text-align: left;
+  padding: 8px 0;
+  transition: color 0.2s ease;
 }
 
 .editBoard .delete {
   color: var(--color-red); /* Changed from #ea5555 */
+  width: 100%;
+  text-align: left;
+  padding: 8px 0;
+  transition: color 0.2s ease;
 }
 
-.board-menu:hover .editBoard {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 14px;
+.editBoard .edit:hover,
+.editBoard .edit:focus {
+  color: var(--color-purple);
+}
+
+.editBoard .delete:hover,
+.editBoard .delete:focus {
+  color: #ff9898; /* Lighter red for hover */
+}
+
+.editBoard .logout {
+  color: var(--color-purple); /* Purple color for logout */
+  width: 100%;
+  text-align: left;
+  padding: 8px 0;
+  transition: color 0.2s ease;
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+}
+
+.editBoard .logout:hover,
+.editBoard .logout:focus {
+  color: var(--color-purple-hover);
 }
 
 @media (max-width: 1023px) {
