@@ -2,9 +2,7 @@ import axios from "axios";
 
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_BASE_URL ||
-    "https://kanban-mangement-app.onrender.com/api",
+  baseURL: "https://kanban-mangement-app.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },
