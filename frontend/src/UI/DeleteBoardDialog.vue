@@ -6,10 +6,10 @@
       <div v-show="modelValue" class="backdrop" @click.self="close">
         <div class="dialog">
           <div class="deleteDiv">
-            <p>Delete this task?</p>
+            <p>Delete this board?</p>
             <small>
               Are you sure you want to delete the ‘<span>{{ boardName }}</span
-              >’ task and its subtasks? This action cannot be reversed.
+              >’ board and its columns? This action cannot be reversed.
             </small>
             <div class="deleteControls">
               <base-button

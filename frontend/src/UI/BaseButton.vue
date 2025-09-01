@@ -26,7 +26,9 @@ const props = defineProps({
 .new-s-c,
 .save,
 .delete,
-.cancel {
+.cancel,
+.login,
+.submit {
   background-color: var(--color-purple); /* Changed from #635fc7 */
   border-radius: 28px;
   font-size: 15px;
@@ -37,7 +39,7 @@ const props = defineProps({
   border: none;
   display: flex;
   gap: 5px;
-  width: 175px;
+  width: 180px;
   align-items: center;
   justify-content: center;
 }
@@ -51,8 +53,14 @@ const props = defineProps({
   ); /* Changed from #635fc71a */
   padding-block: 10px;
 }
+
+.submit {
+  width: 262px;
+}
+
 .new-s-c span,
 .save span,
+.submit span,
 .delete span,
 .cancel span {
   display: inline !important;
@@ -60,12 +68,14 @@ const props = defineProps({
   font-weight: bold;
 }
 
-.delete {
+.delete,
+.login {
   background-color: var(--color-red) !important; /* Changed from #ea5555 */
   color: var(--color-white) !important; /* Changed from white */
 }
 
-.delete span {
+.delete span,
+.login span {
   color: var(--color-white); /* Changed from white */
 }
 
@@ -76,6 +86,11 @@ const props = defineProps({
 .delete,
 .cancel {
   width: 200px;
+  padding-block: 12px;
+}
+
+.login {
+  width: 100px;
   padding-block: 12px;
 }
 
@@ -97,8 +112,16 @@ button {
 
 .new-task:hover,
 .new-column:hover,
-.save:hover {
+.save:hover,
+.submit:hover {
   background-color: var(--color-purple-hover); /* Changed from #a8a4ff */
+}
+
+.delete:hover,
+.login:hover {
+  background-color: var(
+    --color-red-hover
+  ) !important; /* Changed from #ff9898 */
 }
 
 @media (max-width: 1023px) {
@@ -123,6 +146,10 @@ button {
   .new-s-c,
   .save {
     width: 270px;
+  }
+
+  .submit {
+    width: 90%;
   }
 
   .delete,

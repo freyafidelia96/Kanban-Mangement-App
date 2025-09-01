@@ -44,30 +44,16 @@
             </template>
           </base-button>
         </div>
-        <div
-          class="board-menu"
-          @mouseenter="handleMouseEnter"
-          @mouseleave="handleMouseLeave"
-          @focusin="showBoardOptions = true"
-          @focusout="handleFocusOut"
-        >
-          <button
-            class="dots"
-            aria-label="Board options"
-            :aria-expanded="showBoardOptions"
-            @click="toggleBoardOptions"
-            tabindex="0"
-          >
+        <div class="board-menu">
+          <button class="dots">
             <img
               src="../assets/images/icon-vertical-ellipsis.svg"
               alt="icon-vertical-ellipsis"
             />
           </button>
-          <div class="editBoard" :class="{ 'show-options': showBoardOptions }">
-            <button class="edit" @click="handleEditClick" tabindex="0">
-              Edit Board
-            </button>
-            <button class="delete" @click="handleDeleteClick" tabindex="0">
+          <div class="editBoard">
+            <button class="edit" @click="emit('edit-board')">Edit Board</button>
+            <button class="delete" @click="emit('delete-board')">
               Delete Board
             </button>
           </div>
@@ -95,7 +81,6 @@ import iconChevronDown from "../assets/images/icon-chevron-down.svg";
 const view = inject("view");
 const boards = useBoards();
 const showDropDown = ref(false);
-const showBoardOptions = ref(false); // New ref for controlling board options visibility
 
 const themeStore = useTheme();
 const emit = defineEmits([
@@ -133,77 +118,15 @@ watch(showSidebarDialog, (newValue) => {
   }
 });
 
-// Variable to track mouseenter/mouseleave timeouts
-let menuTimeout = null;
-
-// Handle mouseenter with a small delay to prevent accidental triggers
-function handleMouseEnter() {
-  if (menuTimeout) clearTimeout(menuTimeout);
-  showBoardOptions.value = true;
-}
-
-// Handle mouseleave with a small delay to make the menu less jumpy
-function handleMouseLeave() {
-  if (menuTimeout) clearTimeout(menuTimeout);
-  menuTimeout = setTimeout(() => {
-    showBoardOptions.value = false;
-  }, 100);
-}
-
-// Handle focusout with a small delay to allow clicking menu items
-function handleFocusOut(event) {
-  // Check if the new focus target is within our menu
-  if (!event.currentTarget.contains(event.relatedTarget)) {
-    setTimeout(() => {
-      showBoardOptions.value = false;
-    }, 100);
-  }
-}
-
-// Handle clicks outside the board menu
-function handleClickOutside(event) {
-  const boardMenu = document.querySelector(".board-menu");
-  if (boardMenu && !boardMenu.contains(event.target)) {
-    showBoardOptions.value = false;
-  }
-}
-
-// Toggle board options menu with keyboard or click
-function toggleBoardOptions(event) {
-  // Stop event propagation to prevent it from triggering handleClickOutside
-  event.stopPropagation();
-  showBoardOptions.value = !showBoardOptions.value;
-
-  // Log to check if the function is being called
-  console.log("Board options toggled:", showBoardOptions.value);
-}
-
-// Handle edit board click
-function handleEditClick(event) {
-  event.stopPropagation(); // Prevent bubbling
-  emit("edit-board");
-  showBoardOptions.value = false; // Hide menu after action
-}
-
-// Handle delete board click
-function handleDeleteClick(event) {
-  event.stopPropagation(); // Prevent bubbling
-  emit("delete-board");
-  showBoardOptions.value = false; // Hide menu after action
-}
-
 // Set initial screen size on component mount
 onMounted(() => {
   checkScreenSize();
   window.addEventListener("resize", checkScreenSize);
-  // Add global click listener to close menu when clicking outside
-  document.addEventListener("mousedown", handleClickOutside);
 });
 
-// Clean up event listeners on component unmount
+// Clean up event listener on component unmount
 onUnmounted(() => {
   window.removeEventListener("resize", checkScreenSize);
-  document.removeEventListener("mousedown", handleClickOutside);
 });
 </script>
 
@@ -287,18 +210,8 @@ button {
   display: inline-block;
 }
 
-.board-menu .dots {
-  padding: 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-}
-
-.board-menu .dots:hover,
-.board-menu .dots:focus {
-  background-color: var(--background-subtle);
-}
-
 .board-menu .editBoard {
+  display: none;
   position: absolute;
   width: 192px;
   height: auto;
@@ -309,44 +222,22 @@ button {
   ); /* Changed from white for pop-up menu */
   padding: 15px;
   border-radius: 10px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-  display: none; /* Hidden by default */
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 14px;
-  z-index: 100;
-}
-
-/* Show the menu when this class is applied */
-.board-menu .editBoard.show-options {
-  display: flex; /* Show as flex when active */
 }
 
 .editBoard .edit {
   color: var(--text-color-body); /* Changed from #828fa3 */
-  width: 100%;
-  text-align: left;
-  padding: 8px 0;
-  transition: color 0.2s ease;
 }
 
 .editBoard .delete {
   color: var(--color-red); /* Changed from #ea5555 */
-  width: 100%;
-  text-align: left;
-  padding: 8px 0;
-  transition: color 0.2s ease;
 }
 
-.editBoard .edit:hover,
-.editBoard .edit:focus {
-  color: var(--color-purple);
-}
-
-.editBoard .delete:hover,
-.editBoard .delete:focus {
-  color: #ff9898; /* Lighter red for hover */
+.board-menu:hover .editBoard {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 14px;
 }
 
 @media (max-width: 1023px) {

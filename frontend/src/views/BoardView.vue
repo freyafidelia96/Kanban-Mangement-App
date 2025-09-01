@@ -20,16 +20,8 @@
           :tasks="col.tasks"
           @open-task="openTask"
         ></column-item>
-        <div
-          class="big-column"
-          @click="handleEditBoard"
-          @keydown.enter="handleEditBoard"
-          @keydown.space.prevent="handleEditBoard"
-          tabindex="0"
-          role="button"
-          aria-label="Add new column"
-        >
-          <span class="new-column-text">+ New column</span>
+        <div class="big-column">
+          <button @click="handleEditBoard">+ New column</button>
         </div>
       </div>
       <task-dialog
@@ -143,7 +135,7 @@ function handleEditedBoard(updatedBoardData) {
 }
 
 .big-column {
-  height: calc(100vh - 150px); /* Reduced height to be more reasonable */
+  height: 100vh;
   background-color: var(--background-new-column); /* Changed from #e4ebfa */
   margin-top: 50px;
   width: 280px;
@@ -151,38 +143,18 @@ function handleEditedBoard(updatedBoardData) {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  cursor: pointer; /* Indicate the entire area is clickable */
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  position: relative; /* For focus outline positioning */
-  user-select: none; /* Prevent text selection when clicking */
 }
 
-.big-column:hover {
-  background-color: var(
-    --background-new-column-hover,
-    #d8e0f0
-  ); /* Slightly darker on hover */
-  transform: translateY(-2px); /* Subtle lift effect */
-}
-
-.big-column:active {
-  transform: translateY(0); /* Press effect */
-}
-
-/* Add focus styles for keyboard navigation */
-.big-column:focus {
-  outline: 2px solid var(--color-purple);
-  outline-offset: 2px;
-}
-
-.new-column-text {
+.big-column button {
+  background-color: transparent;
+  border: none;
   color: var(--text-color-body); /* Changed from #828fa3 */
   font-size: 24px;
   font-weight: bold;
-  transition: color 0.2s ease;
+  cursor: pointer;
 }
 
-.big-column:hover .new-column-text {
+.big-column button:hover {
   color: var(--color-purple); /* Changed from #635fc7 */
 }
 
