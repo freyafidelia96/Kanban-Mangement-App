@@ -2,13 +2,16 @@ import axios from "axios";
 
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL:
+    import.meta.env.VITE_API_BASE_URL ||
+    "https://kanban-mangement-app.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Add a request interceptor to include auth token for protected routes
+// Add a request interceptor
+// to include auth token for protected routes
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
