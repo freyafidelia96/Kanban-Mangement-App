@@ -416,7 +416,7 @@ textarea:focus,
   flex-direction: column;
   /* Keep dialog from exceeding viewport height and allow internal scrolling */
   max-height: calc(100vh - 120px);
-  overflow: hidden; /* hide overflow on container; body will scroll */
+  overflow: scroll; /* hide overflow on container; body will scroll */
 }
 
 .dialog-body {
@@ -441,7 +441,6 @@ textarea:focus,
 @media (max-width: 540px) {
   .dialog {
     width: 313px;
-    top: 120px;
     max-height: calc(100vh - 80px);
   }
   .dialog-body {
