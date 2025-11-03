@@ -5,7 +5,7 @@
       <!-- v-show controls visibility -->
       <div v-show="modelValue" class="backdrop" @click.self="close">
         <div class="dialog">
-          <div>
+          <div class="dialog-body">
             <p class="editTask">Add New Task</p>
             <div class="title">
               <label for="title">Title</label>
@@ -409,10 +409,22 @@ textarea:focus,
   position: relative;
   background: var(--background-dialog); /* Changed from #fff */
   border-radius: 8px;
-  padding-inline: 30px;
-  padding-block: 10px;
+  padding: 0; /* remove padding on root so body controls padding */
   width: 480px;
   box-shadow: var(--box-shadow-dialog); /* Replaced hardcoded rgba values */
+  display: flex;
+  flex-direction: column;
+  /* Keep dialog from exceeding viewport height and allow internal scrolling */
+  max-height: calc(100vh - 120px);
+  overflow: hidden; /* hide overflow on container; body will scroll */
+}
+
+.dialog-body {
+  padding-inline: 30px;
+  padding-block: 18px;
+  overflow-y: auto;
+  /* allow dialog-body to grow and scroll when content is tall */
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
 }
 
 /* tiny X button */
@@ -430,6 +442,11 @@ textarea:focus,
   .dialog {
     width: 313px;
     top: 120px;
+    max-height: calc(100vh - 80px);
+  }
+  .dialog-body {
+    padding-inline: 18px;
+    padding-block: 14px;
   }
 }
 </style>
