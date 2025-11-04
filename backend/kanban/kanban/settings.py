@@ -36,6 +36,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['kanban-backend.onrender.com'
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     "https://kanban-mangement-app.vercel.app", 
     "http://localhost:5173",
+    "http://127.0.0.1:5173"
 ])
 
 # Application definition
