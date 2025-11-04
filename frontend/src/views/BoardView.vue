@@ -43,7 +43,11 @@
     <template v-else>
       <div class="empty">
         <p>This board is empty. Create a new column to get started.</p>
-        <base-button label="Add New Column" btn-type="new-column">
+        <base-button
+          label="Add New Column"
+          btn-type="new-column"
+          @click="showBoardDialog = true"
+        >
           <template #icon>
             <img
               src="../assets/images/icon-add-task-mobile.svg"
@@ -53,6 +57,10 @@
         </base-button>
       </div>
     </template>
+    <board-dialog
+      v-model="showBoardDialog"
+      @create-new-board="handleBoardCreated"
+    ></board-dialog>
   </div>
 </template>
 
@@ -63,6 +71,7 @@ import { useRoute } from "vue-router";
 import ColumnItem from "../components/Boards/ColumnItem.vue";
 import TaskDialog from "../UI/TaskDialog.vue";
 import EditBoardDialog from "../UI/EditBoardDialog.vue";
+import BoardDialog from "../UI/BoardDialog.vue";
 
 const boards = useBoards();
 const theme = useTheme();
@@ -72,6 +81,7 @@ const palette = ["#49C4E5", "#8471F2", "#67E2AE"];
 const modelValue = ref(false);
 const selectedTask = ref(null);
 const showEditBoardDialog = ref(false);
+const showBoardDialog = ref(false);
 
 const board = computed(() => {
   return (
@@ -126,6 +136,18 @@ function handleEditBoard() {
 
 function handleEditedBoard(updatedBoardData) {
   boards.editBoard(updatedBoardData);
+}
+
+async function handleBoardCreated(newBoardData) {
+  try {
+    await boards.addBoard(newBoardData);
+    // Optionally you can fetch boards or navigate to the new board here
+    await boards.fetchUserBoards();
+    showBoardDialog.value = false;
+  } catch (err) {
+    console.error("Failed to create board:", err);
+    alert("Failed to create board. See console for details.");
+  }
 }
 </script>
 

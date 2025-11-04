@@ -1,5 +1,5 @@
 <template>
-  <button :class="btnType">
+  <button :class="btnType" @click="handleClick">
     <slot name="icon"></slot>
     <span class="small-screen">
       <slot>{{ label }}</slot>
@@ -8,6 +8,7 @@
 </template>
 
 <script setup>
+const emit = defineEmits(["click"]);
 const props = defineProps({
   label: {
     type: String,
@@ -18,6 +19,11 @@ const props = defineProps({
     default: "new-task",
   },
 });
+
+function handleClick(event) {
+  // forward native click event to parent components
+  emit("click", event);
+}
 </script>
 
 <style lang="css" scoped>

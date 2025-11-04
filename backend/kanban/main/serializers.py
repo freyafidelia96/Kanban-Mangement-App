@@ -36,6 +36,9 @@ class ColumnSerializer(serializers.ModelSerializer):
     class Meta:
         model = Column
         fields = ['id', 'name', 'order', 'tasks']
+    extra_kwargs = {
+            'board': {'write_only': True} 
+        }
 
 class BoardSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')

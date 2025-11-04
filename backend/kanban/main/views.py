@@ -72,6 +72,18 @@ class ColumnViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # Filter columns by board, and ensure the board belongs to the current user
         return Column.objects.filter(board__owner=self.request.user)
+    
+    def perform_create(self, serializer):
+        board_id = self.request.data.get('board')
+        try:
+            # 1. Check if the board exists AND belongs to the authenticated user
+            board = Board.objects.get(pk=board_id, owner=self.request.user)
+            # 2. Save the column, linking it to the retrieved (and authorized) board
+            serializer.save(board=board)
+        except Board.DoesNotExist:
+            # If the board doesn't exist or doesn't belong to the user, throw a 403/404
+            raise serializers.ValidationError({"board": "Invalid board ID or permission denied."})
+
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
