@@ -20,7 +20,6 @@
                   aria-label="Task options"
                   :aria-expanded="showTaskOptions"
                   @click="toggleTaskOptions"
-                  tabindex="0"
                 >
                   <img
                     src="../assets/images/icon-vertical-ellipsis.svg"
@@ -31,14 +30,10 @@
                   class="editBoard"
                   :class="{ 'show-options': showTaskOptions }"
                 >
-                  <button class="edit" @click="setMode('edit')" tabindex="0">
+                  <button class="edit" @click="setMode('edit')">
                     Edit Task
                   </button>
-                  <button
-                    class="delete"
-                    @click="setMode('delete-confirm')"
-                    tabindex="0"
-                  >
+                  <button class="delete" @click="setMode('delete-confirm')">
                     Delete Task
                   </button>
                 </div>
@@ -164,7 +159,7 @@ recharge the batteries a little."
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useBoards } from "../stores";
 
 const boardsStore = useBoards();
@@ -183,7 +178,51 @@ const emit = defineEmits([
 ]);
 
 const mode = ref("view");
+// Control visibility of the task options dropdown
 const showTaskOptions = ref(false);
+let taskMenuTimeout = null;
+
+function handleTaskMenuEnter() {
+  if (taskMenuTimeout) clearTimeout(taskMenuTimeout);
+  showTaskOptions.value = true;
+}
+
+function handleTaskMenuLeave() {
+  if (taskMenuTimeout) clearTimeout(taskMenuTimeout);
+  taskMenuTimeout = setTimeout(() => {
+    showTaskOptions.value = false;
+  }, 120);
+}
+
+function handleTaskFocusOut(event) {
+  if (!event.currentTarget.contains(event.relatedTarget)) {
+    taskMenuTimeout = setTimeout(() => {
+      showTaskOptions.value = false;
+    }, 120);
+  }
+}
+
+function toggleTaskOptions(event) {
+  event.stopPropagation();
+  showTaskOptions.value = !showTaskOptions.value;
+}
+
+function handleClickOutside(event) {
+  // Only close if click is outside this dialog's board-menu
+  const menu = document.querySelector(".board-menu");
+  if (menu && !menu.contains(event.target)) {
+    showTaskOptions.value = false;
+  }
+}
+
+onMounted(() => {
+  document.addEventListener("mousedown", handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("mousedown", handleClickOutside);
+  if (taskMenuTimeout) clearTimeout(taskMenuTimeout);
+});
 const editableTask = ref({
   title: "",
   description: "",
@@ -196,11 +235,9 @@ watch(
   ([newModelValue, newUserData]) => {
     if (newModelValue && newUserData) {
       mode.value = "view";
-      showTaskOptions.value = false; // Reset options menu
       editableTask.value = JSON.parse(JSON.stringify(newUserData));
     } else if (!newModelValue) {
       mode.value = "view";
-      showTaskOptions.value = false; // Reset options menu
     }
   },
   { immediate: true }
@@ -224,7 +261,6 @@ function saveEditedTask() {
 
 function setMode(newMode) {
   mode.value = newMode;
-  showTaskOptions.value = false; // Hide task options menu when changing modes
 }
 
 function confirmDelete() {
@@ -236,30 +272,9 @@ function confirmDelete() {
   close(); // Close the dialog after emitting delete request
 }
 
-// Task menu interaction methods
-function handleTaskMenuEnter() {
-  showTaskOptions.value = true;
-}
-
-function handleTaskMenuLeave() {
-  showTaskOptions.value = false;
-}
-
-function toggleTaskOptions() {
-  showTaskOptions.value = !showTaskOptions.value;
-}
-
-function handleTaskFocusOut(event) {
-  // Check if the related target is inside the task menu
-  if (!event.currentTarget.contains(event.relatedTarget)) {
-    showTaskOptions.value = false;
-  }
-}
-
 function close() {
   emit("update:modelValue", false);
   mode.value = "view";
-  showTaskOptions.value = false; // Hide task options menu when closing
 }
 
 function isCompleted(subtasks) {
@@ -408,17 +423,6 @@ button {
   cursor: pointer;
   border: none;
   background-color: transparent;
-  transition: all 0.2s ease;
-}
-
-.editBoard button:hover,
-.editBoard button:focus {
-  opacity: 0.8;
-  outline: none;
-}
-
-.editBoard button:focus {
-  text-decoration: underline;
 }
 
 .board-menu {
@@ -437,7 +441,6 @@ button {
   padding: 15px;
   border-radius: 10px;
   z-index: 1000;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .editBoard .edit {
@@ -448,8 +451,16 @@ button {
   color: var(--color-red); /* Changed from #ea5555 */
 }
 
-/* Show dropdown when class is applied */
-.editBoard.show-options {
+.board-menu:hover .editBoard {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+/* Show options when toggled via JS (click) */
+.board-menu .editBoard.show-options {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;

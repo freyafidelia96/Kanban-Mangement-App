@@ -20,7 +20,7 @@
             padding: !themeStore.getSidebarVisibility,
           }"
         >
-          <span>Platform Launch</span>
+          <span>{{ boardTitle }}</span>
           <img
             :src="showDropDown ? iconChevronDown : iconChevronUp"
             :alt="showDropDown ? 'close dropdown' : 'open dropdown'"
@@ -99,7 +99,7 @@
 
 <script setup>
 import { inject, ref, onMounted, onUnmounted, computed, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useTheme, useBoards, useAuthStore } from "../stores";
 
 import logoDark from "../assets/images/logo-dark.svg";
@@ -110,6 +110,7 @@ import iconChevronUp from "../assets/images/icon-chevron-up.svg";
 import iconChevronDown from "../assets/images/icon-chevron-down.svg";
 
 const router = useRouter();
+const route = useRoute();
 
 const view = inject("view");
 const boards = useBoards();
@@ -125,6 +126,14 @@ const emit = defineEmits([
   "add-new-task",
   "add-board",
 ]);
+
+// Compute the active board title from the route param and boards store
+const boardTitle = computed(() => {
+  const id = Number(route.params.id);
+  if (!id) return "Platform Launch"; // fallback for no-id routes
+  const b = boards.boards.find((x) => Number(x.id) === id);
+  return b ? b.name : "Platform Launch";
+});
 
 const isSmallScreen = ref(false); // New state to track large screen size
 

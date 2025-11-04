@@ -799,6 +799,11 @@ export const useBoards = defineStore("boards", {
           }
         }
       } else {
+        if (authStore.isAuthenticated && !subtaskId) {
+          console.warn(
+            `Authenticated but subtask ID missing for "${payload.subtaskTitle}". Updating locally until IDs are available.`
+          );
+        }
         // Local update for non-authenticated users
         foundSubtask.isCompleted = payload.isCompleted;
         console.log(
@@ -930,11 +935,14 @@ export const useBoards = defineStore("boards", {
                         name: col.name,
                         tasks: Array.isArray(col.tasks)
                           ? col.tasks.map((task) => ({
+                              // Include IDs for tasks and subtasks so future API updates can reference them
+                              id: task.id,
                               title: task.title,
                               description: task.description || "",
                               status: task.status,
                               subtasks: Array.isArray(task.subtasks)
                                 ? task.subtasks.map((subtask) => ({
+                                    id: subtask.id,
                                     title: subtask.title,
                                     isCompleted: subtask.is_completed,
                                   }))
