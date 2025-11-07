@@ -781,6 +781,16 @@ export const useBoards = defineStore("boards", {
 
           // Update local state
           foundSubtask.isCompleted = payload.isCompleted;
+          // Refresh boards from server to ensure full consistency (updated counts, ordering)
+          try {
+            await this.fetchUserBoards();
+          } catch (fetchErr) {
+            // Log but don't throw to avoid noisy UI errors
+            console.warn(
+              "Failed to refresh boards after subtask update:",
+              fetchErr
+            );
+          }
         } catch (error) {
           console.error(
             `Error updating subtask "${payload.subtaskTitle}":`,
@@ -806,6 +816,12 @@ export const useBoards = defineStore("boards", {
         }
         // Local update for non-authenticated users
         foundSubtask.isCompleted = payload.isCompleted;
+        // Force a small local patch so components depending on the store refresh
+        try {
+          this.$patch({});
+        } catch (patchErr) {
+          /* ignore */
+        }
         console.log(
           `Subtask "${payload.subtaskTitle}" for task "${payload.taskTitle}" in board ${payload.boardId} updated locally to ${payload.isCompleted}`
         );

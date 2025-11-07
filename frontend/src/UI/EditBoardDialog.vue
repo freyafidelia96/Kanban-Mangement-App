@@ -26,7 +26,7 @@
               @click="addColumn"
             ></base-button>
             <base-button
-              label="Create New Board"
+              label="Edit Board"
               btn-type="save"
               @click="saveChanges"
             ></base-button>
